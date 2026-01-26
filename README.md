@@ -3,7 +3,7 @@
 Ferramenta de uso pessoal para geração de prontuário médico no modelo SOAP,
 voltada para atendimento em APS / UPA.
 
-## Como usar
+## Uso
 - Abrir index.html no navegador
 - Preencher o campo #S
 - Gerar SOAP
@@ -11,7 +11,6 @@ voltada para atendimento em APS / UPA.
 
 ## Deploy
 Projeto estático.
-Pode ser publicado diretamente no GitHub Pages ou Netlify.
+Publicar via GitHub Pages ou Netlify.
 
-## Observação
-Ferramenta de uso médico pessoal.
+Uso pessoal médico.

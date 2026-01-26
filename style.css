@@ -49,8 +49,7 @@ pre {
   white-space: pre-wrap;
 }
 
-.links { margin-top: 32px; }
-
+/* MODAL */
 .modal {
   display: none;
   position: fixed;
@@ -66,28 +65,10 @@ pre {
   border-radius: 14px;
 }
 
-/* CSS DE IMPRESSÃO */
+/* IMPRESSÃO */
 @media print {
-  body {
-    background: white;
-    padding: 0;
-  }
-
-  .container {
-    box-shadow: none;
-    border-radius: 0;
-    max-width: 100%;
-    padding: 20mm;
-  }
-
-  button, .links, h1 {
-    display: none !important;
-  }
-
-  pre, textarea {
-    border: none;
-    padding: 0;
-    font-size: 12pt;
-    line-height: 1.5;
-  }
+  body { background: white; padding: 0; }
+  .container { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20mm; }
+  button, .links, h1 { display: none !important; }
+  pre, textarea { border: none; padding: 0; font-size: 12pt; }
 }

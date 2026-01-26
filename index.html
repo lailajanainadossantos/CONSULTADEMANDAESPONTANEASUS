@@ -18,7 +18,7 @@
 
   <div class="box">
     <label>#S:</label>
-    <textarea id="subjetivo"></textarea>
+    <textarea id="subjetivo" placeholder="Digite a queixa do paciente..."></textarea>
     <button onclick="gerarSOAP()">Gerar SOAP</button>
   </div>
 
@@ -43,7 +43,11 @@
 <div id="modal" class="modal">
   <div class="modal-content">
     <h2>Orientações ao Paciente</h2>
-    <select id="orientacaoSelect"></select>
+    <select id="orientacaoSelect" onchange="carregarOrientacao()">
+      <option value="">Selecione</option>
+      <option value="cefaleia">Cefaleia</option>
+      <option value="dengue">Dengue</option>
+    </select>
     <textarea id="orientacaoTexto"></textarea>
     <button onclick="window.print()">Imprimir</button>
     <button onclick="fecharModal()">Fechar</button>
