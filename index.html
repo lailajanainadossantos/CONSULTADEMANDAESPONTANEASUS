@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SOAP – Demanda Espontânea</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>SOAP – Demanda Espontânea</h1>
+
+  <div class="box">
+    <p>#Demanda espontânea</p>
+    <p>#Alergias medicamentosas: nega</p>
+    <p>#Comorbidades: nega</p>
+  </div>
+
+  <div class="box">
+    <label>#S:</label>
+    <textarea id="subjetivo"></textarea>
+    <button onclick="gerarSOAP()">Gerar SOAP</button>
+  </div>
+
+  <div class="box">
+    <pre id="soapGerado"></pre>
+    <button onclick="copiarSOAP()">Copiar SOAP</button>
+    <button onclick="limpar()">Limpar</button>
+  </div>
+
+  <div class="box">
+    <button onclick="abrirModal()">Orientações ao paciente</button>
+  </div>
+
+  <div class="links">
+    <h3>Links úteis</h3>
+    <a href="https://farmaciacidada.es.gov.br/Media/farmaciacidada/Cidada%20Estadual/LME%20-%20Atualizado%20-f%206%20meses.pdf" target="_blank">LME</a>
+    <a href="https://prefeitura.poa.br/sites/default/files/usu_doc/hotsites/sms/bvaps-biblioteca-virtual-de-atencao-primaria-saude/Formul%C3%A1rio%20-%20Solicita%C3%A7%C3%A3o%20de%20Medicamentos%20-%20PEP%20-%202024.pdf" target="_blank">PEP</a>
+    <a href="http://www1.saude.rs.gov.br/dados/1199297634903Laudo%20de%20APAC%20-%20P%E1gina%20Principal%20%5Bfolha%201%5D.pdf" target="_blank">APAC</a>
+  </div>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h2>Orientações ao Paciente</h2>
+    <select id="orientacaoSelect"></select>
+    <textarea id="orientacaoTexto"></textarea>
+    <button onclick="window.print()">Imprimir</button>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
