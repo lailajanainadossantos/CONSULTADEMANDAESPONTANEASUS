@@ -1,59 +1,834 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>SOAP – Demanda Espontânea</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<div class="container">
-  <h1>SOAP – Demanda Espontânea</h1>
-
-  <div class="box">
-    <p>#Demanda espontânea</p>
-    <p>#Alergias medicamentosas: nega</p>
-    <p>#Comorbidades: nega</p>
-  </div>
-
-  <div class="box">
-    <label>#S:</label>
-    <textarea id="subjetivo" placeholder="Digite a queixa do paciente..."></textarea>
-    <button onclick="gerarSOAP()">Gerar SOAP</button>
-  </div>
-
-  <div class="box">
-    <pre id="soapGerado"></pre>
-    <button onclick="copiarSOAP()">Copiar SOAP</button>
-    <button onclick="limpar()">Limpar</button>
-  </div>
-
-  <div class="box">
-    <button onclick="abrirModal()">Orientações ao paciente</button>
-  </div>
-
-  <div class="links">
-    <h3>Links úteis</h3>
-    <a href="https://farmaciacidada.es.gov.br/Media/farmaciacidada/Cidada%20Estadual/LME%20-%20Atualizado%20-f%206%20meses.pdf" target="_blank">LME</a>
-    <a href="https://prefeitura.poa.br/sites/default/files/usu_doc/hotsites/sms/bvaps-biblioteca-virtual-de-atencao-primaria-saude/Formul%C3%A1rio%20-%20Solicita%C3%A7%C3%A3o%20de%20Medicamentos%20-%20PEP%20-%202024.pdf" target="_blank">PEP</a>
-    <a href="http://www1.saude.rs.gov.br/dados/1199297634903Laudo%20de%20APAC%20-%20P%E1gina%20Principal%20%5Bfolha%201%5D.pdf" target="_blank">APAC</a>
-  </div>
-</div>
-
-<div id="modal" class="modal">
-  <div class="modal-content">
-    <h2>Orientações ao Paciente</h2>
-    <select id="orientacaoSelect" onchange="carregarOrientacao()">
-      <option value="">Selecione</option>
-      <option value="cefaleia">Cefaleia</option>
-      <option value="dengue">Dengue</option>
-    </select>
-    <textarea id="orientacaoTexto"></textarea>
-    <button onclick="window.print()">Imprimir</button>
-    <button onclick="fecharModal()">Fechar</button>
-  </div>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+diff --git a/index.html b/index.html
+index e0beee1e36e0d4f817b2f8bf128f0aac5aa1d80b..7d87ba003e93bfdcfd4acf57e68cbcf22ba29958 100644
+--- a/index.html
++++ b/index.html
+@@ -1,59 +1,204 @@
+ <!DOCTYPE html>
+ <html lang="pt-BR">
+ <head>
+   <meta charset="UTF-8">
++  <meta name="viewport" content="width=device-width, initial-scale=1">
+   <title>SOAP – Demanda Espontânea</title>
+   <link rel="stylesheet" href="style.css">
+ </head>
+ <body>
++  <header class="hero">
++    <div class="hero-content">
++      <p class="eyebrow">Repertório clínico para APS / UPA / SAMU / Hospital</p>
++      <h1>SOAP – Demanda Espontânea</h1>
++      <p class="subtitle">Estruture o prontuário com linguagem técnica, condutas objetivas e apoio aos cálculos do dia a dia.</p>
++    </div>
++  </header>
+ 
+-<div class="container">
+-  <h1>SOAP – Demanda Espontânea</h1>
++  <main class="container">
++    <section class="card">
++      <h2>Parâmetros do atendimento</h2>
++      <div class="grid-3">
++        <label class="field">
++          Ambiente
++          <select id="ambiente">
++            <option value="APS">APS</option>
++            <option value="UPA">UPA</option>
++            <option value="SAMU">SAMU</option>
++            <option value="Hospital">Hospital</option>
++          </select>
++        </label>
++        <label class="field">
++          Queixa principal
++          <input id="queixa" type="text" placeholder="Ex: cefaleia, diarreia, dor no ombro">
++        </label>
++        <label class="field">
++          Data
++          <input id="dataAtendimento" type="date">
++        </label>
++      </div>
++    </section>
+ 
+-  <div class="box">
+-    <p>#Demanda espontânea</p>
+-    <p>#Alergias medicamentosas: nega</p>
+-    <p>#Comorbidades: nega</p>
+-  </div>
++    <section class="card">
++      <h2>#S – Subjetivo</h2>
++      <div class="grid-3">
++        <label class="field">
++          Alergias
++          <input id="alergias" type="text" placeholder="Nega ou descreva">
++        </label>
++        <label class="field">
++          MEU (medicações em uso)
++          <input id="medicacoes" type="text" placeholder="Nega ou descreva">
++        </label>
++        <label class="field">
++          Comorbidades
++          <input id="comorbidades" type="text" placeholder="Nega ou descreva">
++        </label>
++      </div>
++      <label class="field">
++        Sinais e sintomas (texto livre)
++        <textarea id="subjetivo" placeholder="Ex: Paciente refere dor torácica intensa de início súbito."></textarea>
++      </label>
++      <p class="helper">Negativos relevantes serão adicionados automaticamente conforme a queixa principal.</p>
++    </section>
+ 
+-  <div class="box">
+-    <label>#S:</label>
+-    <textarea id="subjetivo" placeholder="Digite a queixa do paciente..."></textarea>
+-    <button onclick="gerarSOAP()">Gerar SOAP</button>
+-  </div>
++    <section class="card">
++      <h2>#O – Objetivo</h2>
++      <label class="field">
++        Exame físico direcionado
++        <textarea id="objetivo" placeholder="Ex: BEG, LOC, AAA. AC: RCR 2T BNF SS."></textarea>
++      </label>
++      <label class="field">
++        Exames complementares (só preencha se houver resultados)
++        <textarea id="exames" placeholder="Laboratório (data): Hb: valor | Ht: valor | Leucócitos: valor | ..."></textarea>
++      </label>
++    </section>
+ 
+-  <div class="box">
+-    <pre id="soapGerado"></pre>
+-    <button onclick="copiarSOAP()">Copiar SOAP</button>
+-    <button onclick="limpar()">Limpar</button>
+-  </div>
++    <section class="card">
++      <h2>#A – Avaliação</h2>
++      <div class="grid-2">
++        <label class="field">
++          Hipótese mais provável
++          <input id="hipotesePrincipal" type="text" placeholder="Ex: Cefaleia primária">
++        </label>
++        <label class="field">
++          Diagnósticos diferenciais
++          <input id="hipoteseDiferencial" type="text" placeholder="Ex: Sinusite, hipertensão intracraniana">
++        </label>
++      </div>
++    </section>
+ 
+-  <div class="box">
+-    <button onclick="abrirModal()">Orientações ao paciente</button>
+-  </div>
++    <section class="card">
++      <h2>#P – Plano (imperativo)</h2>
++      <label class="field">
++        Exames
++        <textarea id="planoExames" placeholder="Ex: Solicito hemograma completo, PCR, glicemia. "></textarea>
++      </label>
++      <label class="field">
++        Prescrição
++        <textarea id="planoPrescricao" placeholder="Ex: Prescrevo dipirona 500mg, 1 comprimido VO 6/6h se dor. "></textarea>
++      </label>
++      <label class="field">
++        Orientações
++        <textarea id="planoOrientacoes" placeholder="Ex: Oriento sinais de alarme e retorno imediato se piora. "></textarea>
++      </label>
++    </section>
+ 
+-  <div class="links">
+-    <h3>Links úteis</h3>
+-    <a href="https://farmaciacidada.es.gov.br/Media/farmaciacidada/Cidada%20Estadual/LME%20-%20Atualizado%20-f%206%20meses.pdf" target="_blank">LME</a>
+-    <a href="https://prefeitura.poa.br/sites/default/files/usu_doc/hotsites/sms/bvaps-biblioteca-virtual-de-atencao-primaria-saude/Formul%C3%A1rio%20-%20Solicita%C3%A7%C3%A3o%20de%20Medicamentos%20-%20PEP%20-%202024.pdf" target="_blank">PEP</a>
+-    <a href="http://www1.saude.rs.gov.br/dados/1199297634903Laudo%20de%20APAC%20-%20P%E1gina%20Principal%20%5Bfolha%201%5D.pdf" target="_blank">APAC</a>
+-  </div>
+-</div>
+-
+-<div id="modal" class="modal">
+-  <div class="modal-content">
+-    <h2>Orientações ao Paciente</h2>
+-    <select id="orientacaoSelect" onchange="carregarOrientacao()">
+-      <option value="">Selecione</option>
+-      <option value="cefaleia">Cefaleia</option>
+-      <option value="dengue">Dengue</option>
+-    </select>
+-    <textarea id="orientacaoTexto"></textarea>
+-    <button onclick="window.print()">Imprimir</button>
+-    <button onclick="fecharModal()">Fechar</button>
++    <section class="card actions">
++      <button class="primary" onclick="gerarSOAP()">Gerar SOAP completo</button>
++      <button class="ghost" onclick="copiarSOAP()">Copiar SOAP</button>
++      <button class="ghost" onclick="limparFormulario()">Limpar formulário</button>
++    </section>
++
++    <section class="card">
++      <h2>SOAP gerado</h2>
++      <pre id="soapGerado"></pre>
++    </section>
++
++    <section class="card">
++      <h2>Carta de encaminhamento</h2>
++      <p class="helper">Resumo direto e conciso para seguimento do caso.</p>
++      <label class="field">
++        Informações essenciais do caso
++        <textarea id="encaminhamentoTexto" placeholder="Descreva diagnóstico, achados físicos e necessidade de avaliação."></textarea>
++      </label>
++      <button class="secondary" onclick="gerarEncaminhamento()">Gerar carta</button>
++      <pre id="encaminhamentoGerado"></pre>
++    </section>
++
++    <section class="card">
++      <h2>Cálculo de hidratação – Dengue</h2>
++      <div class="grid-3">
++        <label class="field">
++          Peso (kg)
++          <input id="pesoDengue" type="number" min="1" step="0.1" placeholder="Ex: 70">
++        </label>
++        <label class="field">
++          Faixa etária
++          <select id="faixaEtaria">
++            <option value="adulto">Adulto (&gt;13 anos)</option>
++            <option value="crianca">Criança (&lt;13 anos)</option>
++          </select>
++        </label>
++        <div class="field">
++          <span>&nbsp;</span>
++          <button class="secondary" onclick="calcularDengue()">Calcular hidratação</button>
++        </div>
++      </div>
++      <pre id="dengueResultado"></pre>
++      <p class="helper">1/3 do volume com sais de reidratação e 2/3 com líquidos claros sem açúcar.</p>
++    </section>
++
++    <section class="card">
++      <h2>Dosagem pediátrica (referência rápida)</h2>
++      <div class="grid-3">
++        <label class="field">
++          Idade (meses)
++          <input id="idadeMeses" type="number" min="0" step="1" placeholder="Ex: 24">
++        </label>
++        <label class="field">
++          Peso (kg)
++          <input id="pesoPediatria" type="number" min="1" step="0.1" placeholder="Ex: 12">
++        </label>
++        <div class="field">
++          <span>&nbsp;</span>
++          <button class="secondary" onclick="calcularPediatria()">Calcular doses</button>
++        </div>
++      </div>
++      <pre id="pediatriaResultado"></pre>
++      <p class="helper">Sempre confirmar ajustes clínicos e limites máximos.</p>
++    </section>
++
++    <section class="card">
++      <h2>Modelos e documentos</h2>
++      <div class="links">
++        <a href="https://farmaciacidada.es.gov.br/Media/farmaciacidada/Cidada%20Estadual/LME%20-%20Atualizado%20-f%206%20meses.pdf" target="_blank" rel="noreferrer">Modelo LME</a>
++        <a href="https://prefeitura.poa.br/sites/default/files/usu_doc/hotsites/sms/bvaps-biblioteca-virtual-de-atencao-primaria-saude/Formul%C3%A1rio%20-%20Solicita%C3%A7%C3%A3o%20de%20Medicamentos%20-%20PEP%20-%202024.pdf" target="_blank" rel="noreferrer">Modelo PEP</a>
++      </div>
++    </section>
++  </main>
++
++  <footer class="footer">
++    <button class="link" onclick="abrirModal()">Orientações ao paciente</button>
++    <p>Uso pessoal médico • Conteúdo técnico • Revisar antes de finalizar.</p>
++  </footer>
++
++  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
++    <div class="modal-content">
++      <h2 id="modalTitle">Orientações ao paciente</h2>
++      <select id="orientacaoSelect" onchange="carregarOrientacao()">
++        <option value="">Selecione</option>
++        <option value="cefaleia">Cefaleia</option>
++        <option value="dengue">Dengue</option>
++      </select>
++      <textarea id="orientacaoTexto"></textarea>
++      <div class="modal-actions">
++        <button class="secondary" onclick="window.print()">Imprimir</button>
++        <button class="ghost" onclick="fecharModal()">Fechar</button>
++      </div>
++    </div>
+   </div>
+-</div>
+ 
+-<script src="script.js"></script>
++  <script src="script.js"></script>
+ </body>
+ </html>
+diff --git a/script.js b/script.js
+index 13918033b7402947e6e1ab458ac909b6c4a9a7f4..bc1b31d203110ecad10805e411a3fc4aea7d7508 100644
+--- a/script.js
++++ b/script.js
+@@ -1,95 +1,209 @@
+-function gerarSOAP() {
+-  const textoOriginal = document.getElementById("subjetivo").value;
+-  const s = textoOriginal.toLowerCase();
+-
+-  let S = textoOriginal;
+-  let O = "BEG, LOC, AAA\n";
+-  let A = "";
+-  let P = "";
+-
+-  if (s.includes("cefaleia") || s.includes("dor de cabeça")) {
+-    S += "\nNega febre, rigidez de nuca, trauma cranioencefálico recente, síncope, crises convulsivas, paresias, parestesias, alterações visuais e dor torácica.";
+-    O += "Neurológico: Glasgow 15, pupilas isocóricas e fotorreagentes, força preservada em quatro membros, sensibilidade preservada, sem déficits focais.\nAC: RCR 2T BNF SS";
+-    A = "Cefaleia primária";
+-    P = "Oriento repouso relativo e boa hidratação.\nOriento quanto aos sinais de alarme neurológicos, devendo procurar UPA/PA se presentes.\nEm caso de persistência dos sintomas ou surgimento de novas queixas, buscar reavaliação.";
+-  }
+-
+-  if (!A) {
+-    A = "A esclarecer";
+-    P = "Oriento sinais de alarme conforme quadro clínico.\nOriento retorno se persistência ou surgimento de novas queixas.";
+-  }
+-
+-  const soap = `#Demanda espontânea
+-#Alergias medicamentosas: nega
+-#Comorbidades: nega
+-
+-#S:
+-${S}
+-
+-#O:
+-${O}
+-
+-#A:
+-${A}
++const queixaRegras = {
++  cefaleia: {
++    negativos: "NEGA febre, rigidez de nuca, alteração visual, síncope, convulsões, trauma cranioencefálico recente, paresias e parestesias.",
++    objetivo: "BEG, LOC, AAA, afebril.\nSV: sem alterações relevantes.\nNeurológico: Glasgow 15, pupilas isocóricas e fotorreagentes, força e sensibilidade preservadas, sem déficits focais.\nAC: RCR 2T BNF SS.",
++  },
++  "dor no ombro": {
++    negativos: "NEGA trauma recente de alta energia, perda de força distal e parestesias em membro superior.",
++    objetivo: "BEG, LOC, AAA.\nOrtopédico (ombro): inspeção sem deformidades, dor à palpação conforme queixa, amplitude de movimento limitada pela dor, testes específicos direcionados, sem sinais de instabilidade.\nSV: sem alterações relevantes.",
++  },
++  diarreia: {
++    negativos: "NEGA sangue nas fezes, vômitos incoercíveis, febre alta, sinais de desidratação importante e dor abdominal intensa.",
++    objetivo: "BEG, LOC, AAA.\nAbdome: RHA+, depressível, sem dor à palpação profunda, sem sinais de irritação peritoneal.\nPele: sem lesões, hidratação preservada.\nSV: sem alterações relevantes.",
++  },
++  abscesso: {
++    negativos: "NEGA febre persistente, calafrios e sinais sistêmicos graves.",
++    objetivo: "BEG, LOC, AAA.\nPele: abscesso descrito com localização, diâmetro, calor local, hiperemia e dor à palpação.\nSV: sem alterações relevantes.",
++  },
++};
++
++function normalizarTexto(texto) {
++  return texto
++    .toLowerCase()
++    .normalize("NFD")
++    .replace(/\p{Diacritic}/gu, "");
++}
+ 
+-#P:
+-${P}
+-`;
++function buscarRegra(queixa) {
++  const termo = normalizarTexto(queixa);
++  const chaves = Object.keys(queixaRegras);
++  return chaves.find((chave) => termo.includes(chave)) || null;
++}
+ 
+-  document.getElementById("soapGerado").textContent = soap;
++function gerarSOAP() {
++  const ambiente = document.getElementById("ambiente").value;
++  const data = document.getElementById("dataAtendimento").value;
++  const queixa = document.getElementById("queixa").value.trim();
++  const alergias = document.getElementById("alergias").value.trim() || "Nega";
++  const medicacoes = document.getElementById("medicacoes").value.trim() || "Nega";
++  const comorbidades = document.getElementById("comorbidades").value.trim() || "Nega";
++  const subjetivo = document.getElementById("subjetivo").value.trim();
++  const objetivo = document.getElementById("objetivo").value.trim();
++  const exames = document.getElementById("exames").value.trim();
++  const hipotesePrincipal = document.getElementById("hipotesePrincipal").value.trim() || "A esclarecer";
++  const hipoteseDiferencial = document.getElementById("hipoteseDiferencial").value.trim();
++  const planoExames = document.getElementById("planoExames").value.trim();
++  const planoPrescricao = document.getElementById("planoPrescricao").value.trim();
++  const planoOrientacoes = document.getElementById("planoOrientacoes").value.trim();
++
++  const regra = queixa ? buscarRegra(queixa) : null;
++  const negativos = regra ? queixaRegras[regra].negativos : "";
++  const objetivoSugerido = regra ? queixaRegras[regra].objetivo : "BEG, LOC, AAA.";
++
++  const blocoS = [
++    subjetivo,
++    negativos,
++  ].filter(Boolean).join("\n");
++
++  const blocoO = [
++    objetivo || objetivoSugerido,
++    exames ? `\n${exames}` : "",
++  ].join("\n");
++
++  const blocoA = [
++    "1. " + hipotesePrincipal,
++    hipoteseDiferencial ? `2. ${hipoteseDiferencial}` : "",
++  ].filter(Boolean).join("\n");
++
++  const blocoP = [
++    planoExames ? `1. Exames: ${planoExames}` : "1. Exames: ",
++    planoPrescricao ? `2. Prescrição: ${planoPrescricao}` : "2. Prescrição: ",
++    planoOrientacoes ? `3. Orientações: ${planoOrientacoes}` : "3. Orientações: ",
++  ].join("\n");
++
++  const cabecalho = [
++    `Ambiente: ${ambiente}`,
++    data ? `Data: ${data}` : null,
++    queixa ? `Queixa principal: ${queixa}` : null,
++  ].filter(Boolean).join("\n");
++
++  const soap = `${cabecalho}\n\n#S - Subjetivo\n#Alergias: ${alergias}.\n#MEU: ${medicacoes}.\n#Comorbidades: ${comorbidades}.\n${blocoS}\n\n#O - Objetivo\n${blocoO}\n\n#A - Avaliação\n${blocoA}\n\n#P - Plano\n${blocoP}\n`;
++
++  document.getElementById("soapGerado").textContent = soap.trim();
+ }
+ 
+ function copiarSOAP() {
+-  navigator.clipboard.writeText(document.getElementById("soapGerado").textContent);
++  const texto = document.getElementById("soapGerado").textContent;
++  navigator.clipboard.writeText(texto);
+ }
+ 
+-function limpar() {
+-  document.getElementById("subjetivo").value = "";
++function limparFormulario() {
++  document.querySelectorAll("input, textarea").forEach((campo) => {
++    if (campo.type === "date") {
++      campo.value = "";
++    } else {
++      campo.value = "";
++    }
++  });
+   document.getElementById("soapGerado").textContent = "";
++  document.getElementById("encaminhamentoGerado").textContent = "";
++  document.getElementById("dengueResultado").textContent = "";
++  document.getElementById("pediatriaResultado").textContent = "";
+ }
+ 
+ function abrirModal() {
+   document.getElementById("modal").style.display = "block";
+ }
+ 
+ function fecharModal() {
+   document.getElementById("modal").style.display = "none";
+ }
+ 
+ function carregarOrientacao() {
+   const tipo = document.getElementById("orientacaoSelect").value;
+   const campo = document.getElementById("orientacaoTexto");
+ 
+   const orientacoes = {
+-    cefaleia: `ORIENTAÇÕES – CEFALEIA
++    cefaleia: `ORIENTAÇÕES – CEFALEIA\n\nManter repouso relativo e boa hidratação.\nEvitar jejum prolongado.\n\nProcurar atendimento imediato se houver:\n• Febre\n• Rigidez de nuca\n• Alterações visuais\n• Fraqueza ou formigamento\n• Desmaios ou convulsões`,
+ 
+-Manter repouso relativo e boa hidratação.
+-Evitar jejum prolongado.
++    dengue: `ORIENTAÇÕES – DENGUE\n\nManter hidratação vigorosa.\nNão utilizar anti-inflamatórios.\n\nProcurar atendimento imediato se houver:\n• Dor abdominal intensa\n• Vômitos persistentes\n• Sangramentos\n• Tontura ou desmaios`,
++  };
+ 
+-Procurar atendimento imediato se houver:
+-• Febre
+-• Rigidez de nuca
+-• Alterações visuais
+-• Fraqueza ou formigamento
+-• Desmaios ou convulsões
++  campo.value = orientacoes[tipo] || "";
++}
+ 
+-Consulta em UBS – São José/SC
+-Dra. Laila J. dos Santos – CRM-SC 38237`,
++function gerarEncaminhamento() {
++  const texto = document.getElementById("encaminhamentoTexto").value.trim();
++  if (!texto) {
++    document.getElementById("encaminhamentoGerado").textContent = "";
++    return;
++  }
++  const carta = `Paciente com ${texto}`;
++  document.getElementById("encaminhamentoGerado").textContent = carta;
++}
+ 
+-    dengue: `ORIENTAÇÕES – DENGUE
++function calcularDengue() {
++  const peso = parseFloat(document.getElementById("pesoDengue").value);
++  const faixa = document.getElementById("faixaEtaria").value;
+ 
+-Manter hidratação rigorosa.
+-Não utilizar anti-inflamatórios.
++  if (!peso || peso <= 0) {
++    document.getElementById("dengueResultado").textContent = "Informe o peso para cálculo.";
++    return;
++  }
+ 
+-Procurar atendimento imediato se houver:
+-• Dor abdominal intensa
+-• Vômitos persistentes
+-• Sangramentos
+-• Tontura ou desmaios
++  const mlPorKg = faixa === "adulto" ? 60 : 80;
++  const total = peso * mlPorKg;
++  const sais = total / 3;
++  const liquidos = total * 2 / 3;
+ 
+-Consulta em UBS – São José/SC
+-Dra. Laila J. dos Santos – CRM-SC 38237`
+-  };
++  const resultado = `DILUIR 1 ENVELOPE EM 1L DE ÁGUA FILTRADA. REALIZAR HIDRATAÇÃO VIGOROSA.\nCONSUMIR APROXIMADAMENTE ${(total / 1000).toFixed(1)} L AO DIA, DOS QUAIS:\n${(sais / 1000).toFixed(1)} L - REIDRATAÇÃO COM SORO DE REIDRATAÇÃO\n${(liquidos / 1000).toFixed(1)} L - ÁGUA, SUCOS E CHÁS (SEM AÇÚCAR E CLAROS)`;
+ 
+-  campo.value = orientacoes[tipo] || "";
++  document.getElementById("dengueResultado").textContent = resultado;
++}
++
++function calcularPediatria() {
++  const idadeMeses = parseInt(document.getElementById("idadeMeses").value, 10);
++  const peso = parseFloat(document.getElementById("pesoPediatria").value);
++
++  if (!peso || peso <= 0 || Number.isNaN(idadeMeses)) {
++    document.getElementById("pediatriaResultado").textContent = "Informe idade em meses e peso para cálculo.";
++    return;
++  }
++
++  const dipironaGotas = Math.min(Math.round(peso * 0.7), 52);
++  const ibuprofenoGotas = Math.min(Math.round(peso * 2), 40);
++  const amoxiDosePlenaMl = ((peso * 50) / 3) / 50;
++  const amoxiDoseAltaMl = ((peso * 90) / 3) / 50;
++  const azitroDia1Ml = (peso * 10) / 40;
++  const azitroDias2a5Ml = (peso * 5) / 40;
++  const cefalexinaDoseMinMl = ((peso * 25) / 4) / 50;
++  const cefalexinaDoseMaxMl = ((peso * 50) / 4) / 50;
++  const metoclopramidaGotas = Math.min(Math.round(peso * 1), 52);
++
++  let escopolaminaDose = "Consultar faixa etária.";
++  if (idadeMeses < 3) {
++    escopolaminaDose = "1,5 mg/kg/dose (máx 2 mL por dose).";
++  } else if (idadeMeses < 12) {
++    escopolaminaDose = "0,7 mg/kg/dose (máx 2 mL por dose).";
++  } else if (idadeMeses < 72) {
++    escopolaminaDose = "0,4 mg/kg/dose (máx 2 mL por dose).";
++  } else {
++    escopolaminaDose = "10-20 mg/dose (máx 2 mL por dose).";
++  }
++
++  let desloratadina = "";
++  if (idadeMeses >= 6 && idadeMeses < 12) {
++    desloratadina = "2 ml VO, 1x/dia.";
++  } else if (idadeMeses >= 12 && idadeMeses < 72) {
++    desloratadina = "2,5 ml VO, 1x/dia.";
++  } else if (idadeMeses >= 72 && idadeMeses <= 144) {
++    desloratadina = "5 ml VO, 1x/dia.";
++  } else {
++    desloratadina = "Ajustar conforme idade.";
++  }
++
++  let acetilcisteina = "";
++  if (idadeMeses >= 24 && idadeMeses < 60) {
++    acetilcisteina = "5 ml VO 12/12h.";
++  } else if (idadeMeses >= 60 && idadeMeses < 120) {
++    acetilcisteina = "5 ml VO 8/8h.";
++  } else if (idadeMeses >= 120) {
++    acetilcisteina = "10 ml VO 8/8h.";
++  } else {
++    acetilcisteina = "Ajustar conforme idade.";
++  }
++
++  const resultado = `PESO: ${peso} kg | IDADE: ${idadeMeses} meses\n\nDIPIRONA 500mg/mL: ${dipironaGotas} gotas 6/6h se dor ou febre.\nAMOXICILINA 50mg/mL: ${amoxiDosePlenaMl.toFixed(1)} mL 8/8h (50mg/kg/dia) OU ${amoxiDoseAltaMl.toFixed(1)} mL 8/8h (90mg/kg/dia).\nAZITROMICINA 200mg/5mL: ${azitroDia1Ml.toFixed(1)} mL no dia 1 e ${azitroDias2a5Ml.toFixed(1)} mL nos dias 2 a 5.\nCEFALEXINA 250mg/5mL: ${cefalexinaDoseMinMl.toFixed(1)} a ${cefalexinaDoseMaxMl.toFixed(1)} mL 6/6h.\nMETOCLOPRAMIDA 4mg/mL: ${metoclopramidaGotas} gotas 8/8h se náusea.\nESCOPOLAMINA 10mg/mL: ${escopolaminaDose}\nSIMETICONA 75mg/mL: 3 a 5 gotas 3x/dia (lactentes) | 5 a 10 gotas 3x/dia (até 12 anos).\nIBUPROFENO 50mg/mL: ${ibuprofenoGotas} gotas 8/8h por até 3 dias.\nDESLORATADINA solução pediátrica: ${desloratadina}\nACETILCISTEÍNA xarope 20mg/mL: ${acetilcisteina}\nSAIS DE REIDRATAÇÃO: diluir em água filtrada e ofertar livre demanda.`;
++
++  document.getElementById("pediatriaResultado").textContent = resultado;
+ }
+diff --git a/style.css b/style.css
+index 95a1296c6c75dd835682646c2c0958aab7c96599..6890c3c41c6738c2bce693ba770b1286c4b8c9da 100644
+--- a/style.css
++++ b/style.css
+@@ -1,74 +1,266 @@
+-/* FORÇA MODO CLARO */
+-:root { color-scheme: light; }
++:root {
++  color-scheme: light;
++  --bg: #f6f7fb;
++  --card: #ffffff;
++  --primary: #2563eb;
++  --primary-dark: #1e40af;
++  --secondary: #0f766e;
++  --text: #111827;
++  --muted: #6b7280;
++  --border: #e5e7eb;
++  --shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
++}
+ 
+-* { box-sizing: border-box; margin: 0; padding: 0; }
++* {
++  box-sizing: border-box;
++  margin: 0;
++  padding: 0;
++}
+ 
+ body {
+-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+-  background: #f5f7fa;
+-  color: #1f2937;
+-  padding: 40px 20px;
++  font-family: "Inter", "Segoe UI", system-ui, sans-serif;
++  background: var(--bg);
++  color: var(--text);
++  min-height: 100vh;
++}
++
++.hero {
++  background: radial-gradient(circle at top, rgba(37, 99, 235, 0.2), transparent 55%),
++    linear-gradient(120deg, #1d4ed8, #38bdf8);
++  color: #fff;
++  padding: 48px 20px 64px;
++}
++
++.hero-content {
++  max-width: 980px;
++  margin: 0 auto;
++}
++
++.eyebrow {
++  text-transform: uppercase;
++  letter-spacing: 2px;
++  font-size: 12px;
++  opacity: 0.8;
++  margin-bottom: 12px;
++}
++
++.subtitle {
++  font-size: 18px;
++  max-width: 640px;
++  margin-top: 16px;
++  color: rgba(255, 255, 255, 0.88);
+ }
+ 
+ .container {
+-  max-width: 920px;
+-  margin: auto;
+-  background: #ffffff;
+-  border-radius: 14px;
+-  padding: 32px;
+-  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
++  max-width: 1100px;
++  margin: -40px auto 80px;
++  padding: 0 20px;
++  display: flex;
++  flex-direction: column;
++  gap: 24px;
++}
++
++.card {
++  background: var(--card);
++  border-radius: 18px;
++  padding: 24px;
++  border: 1px solid var(--border);
++  box-shadow: var(--shadow);
++}
++
++h1 {
++  font-size: 36px;
+ }
+ 
+-h1 { text-align: center; margin-bottom: 32px; }
++h2 {
++  font-size: 22px;
++  margin-bottom: 16px;
++}
+ 
+-.box { margin-bottom: 28px; }
++.field {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++  font-weight: 600;
++  color: var(--text);
++}
+ 
++input,
++select,
+ textarea {
+   width: 100%;
+-  min-height: 140px;
+-  padding: 14px;
+-  border-radius: 10px;
+-  border: 1px solid #d1d5db;
++  padding: 12px 14px;
++  border-radius: 12px;
++  border: 1px solid var(--border);
++  font-size: 14px;
++  background: #fff;
++}
++
++textarea {
++  min-height: 120px;
++  resize: vertical;
++}
++
++.grid-2 {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
++  gap: 16px;
++}
++
++.grid-3 {
++  display: grid;
++  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
++  gap: 16px;
++}
++
++.actions {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 12px;
++  justify-content: flex-start;
+ }
+ 
+ button {
+-  margin-top: 12px;
+-  padding: 10px 18px;
+-  border-radius: 10px;
+   border: none;
+-  background: #2563eb;
+-  color: #fff;
++  border-radius: 12px;
++  padding: 12px 18px;
++  font-weight: 600;
+   cursor: pointer;
++  transition: transform 0.2s ease, box-shadow 0.2s ease;
++}
++
++button:hover {
++  transform: translateY(-1px);
++  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
++}
++
++.primary {
++  background: var(--primary);
++  color: #fff;
++}
++
++.secondary {
++  background: var(--secondary);
++  color: #fff;
++}
++
++.ghost {
++  background: #f3f4f6;
++  color: var(--text);
++}
++
++.link {
++  background: transparent;
++  color: #fff;
++  border: 1px solid rgba(255, 255, 255, 0.6);
+ }
+ 
+ pre {
+   background: #f9fafb;
+-  border: 1px solid #e5e7eb;
+-  border-radius: 10px;
+-  padding: 20px;
++  border: 1px solid var(--border);
++  border-radius: 12px;
++  padding: 18px;
+   white-space: pre-wrap;
++  font-size: 14px;
++}
++
++.helper {
++  color: var(--muted);
++  font-size: 13px;
++  margin-top: 8px;
++}
++
++.links {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 12px;
++}
++
++.links a {
++  text-decoration: none;
++  color: var(--primary-dark);
++  font-weight: 600;
++  padding: 8px 14px;
++  border-radius: 999px;
++  background: rgba(37, 99, 235, 0.1);
++}
++
++.footer {
++  background: #0f172a;
++  color: #e2e8f0;
++  padding: 24px 20px 36px;
++  text-align: center;
++}
++
++.footer p {
++  margin-top: 12px;
++  font-size: 13px;
+ }
+ 
+-/* MODAL */
+ .modal {
+   display: none;
+   position: fixed;
+   inset: 0;
+-  background: rgba(0,0,0,0.45);
++  background: rgba(15, 23, 42, 0.6);
++  padding: 20px;
+ }
+ 
+ .modal-content {
+   background: #fff;
+   max-width: 720px;
+-  margin: 8% auto;
++  margin: 6% auto;
+   padding: 28px;
+-  border-radius: 14px;
++  border-radius: 18px;
++  display: flex;
++  flex-direction: column;
++  gap: 16px;
++}
++
++.modal-actions {
++  display: flex;
++  gap: 12px;
++}
++
++@media (max-width: 720px) {
++  .hero {
++    padding: 36px 20px 56px;
++  }
++
++  h1 {
++    font-size: 28px;
++  }
+ }
+ 
+-/* IMPRESSÃO */
+ @media print {
+-  body { background: white; padding: 0; }
+-  .container { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20mm; }
+-  button, .links, h1 { display: none !important; }
+-  pre, textarea { border: none; padding: 0; font-size: 12pt; }
++  body {
++    background: white;
++  }
++
++  .hero,
++  .actions,
++  .links,
++  .footer,
++  button {
++    display: none !important;
++  }
++
++  .container {
++    margin: 0;
++    padding: 0;
++  }
++
++  .card {
++    box-shadow: none;
++    border: none;
++    padding: 0 0 16px;
++  }
++
++  pre,
++  textarea,
++  input,
++  select {
++    border: none;
++    padding: 0;
++    font-size: 12pt;
++  }
+ }
